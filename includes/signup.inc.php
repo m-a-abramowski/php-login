@@ -1,5 +1,5 @@
 <?php
-if (isset($_POST['singup-submit'])) {
+if (isset($_POST['signup-submit'])) {
 
   require 'dbh.inc.php';
 
@@ -45,8 +45,31 @@ if (isset($_POST['singup-submit'])) {
           header("location: ../signup.php?error=usertaken&mail=".$email);
           exit();
         }
+        else {
+
+          $sql = "INSERT INTO users (uidUsers, emailUsers, pwdUsers) VALUES (?, ?, ?)";
+          $stmt = mysqli_stmt_init($conn);
+          if (!mysqli_stmt_prepare($stmt, $sql)) {
+            header("location: ../signup.php?error=sqlerror");
+            exit();
+          }
+          else {
+            $hashedPwd = password_hash($password, PASSWORD_DEFAULT);
+
+            mysqli_stmt_bind_param($stmt, "sss", $username, $email, $hashedPwd);
+            mysqli_stmt_execute($stmt);
+            header("location: ../signup.php?signup=success");
+            exit();
+          }
+        }
     }
 
   }
+  mysqli_stmt_close($stmt);
+  mysqli_close($conn);
 
+}
+else {
+  header("Location: ../signup.php");
+  exit();
 }
